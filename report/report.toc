@@ -1,0 +1,29 @@
+\babel@toc {italian}{}\relax 
+\babel@toc {italian}{}\relax 
+\contentsline {chapter}{\numberline {1}Introduzione}{2}{chapter.1}%
+\contentsline {chapter}{\numberline {2}Architettura del progetto}{3}{chapter.2}%
+\contentsline {chapter}{\numberline {3}Implementazione del web server}{4}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Struttura generale}{4}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Architettura della classe \texttt {HTTPServer}}{4}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Ciclo di vita del Server}{5}{subsection.3.1.2}%
+\contentsline {section}{\numberline {3.2}Gestione delle richieste}{5}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Validazione dei metodi HTTP}{5}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Risoluzione dei path}{5}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Threading e concorrenza}{6}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Gestione MIME types e logging}{6}{section.3.3}%
+\contentsline {subsubsection}{Headers HTTP}{6}{section*.2}%
+\contentsline {subsubsection}{Sistema di logging}{6}{section*.3}%
+\contentsline {section}{\numberline {3.4}Sicurezza base}{7}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Prevenzione directory traversal}{7}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Gestione degli errori HTTP}{7}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Resource cleanup}{7}{subsection.3.4.3}%
+\contentsline {chapter}{\numberline {4}Sito web statico}{8}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Pagine HTML}{8}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Estendibilità}{8}{section.4.2}%
+\contentsline {chapter}{\numberline {5}Conclusioni}{9}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Sviluppi Futuri}{9}{section.5.1}%
+\contentsline {chapter}{\numberline {A}Guida utente}{10}{appendix.Alph1}%
+\contentsline {section}{\numberline {A.1}Installazione e Avvio}{10}{section.Alph1.1}%
+\contentsline {section}{\numberline {A.2}Accesso alle pagines}{10}{section.Alph1.2}%
+\contentsline {subsection}{\numberline {A.2.1}Note sull'accesso}{10}{subsection.Alph1.2.1}%
+\contentsline {section}{\numberline {A.3}Arresto del Server}{11}{section.Alph1.3}%
