@@ -9,290 +9,260 @@ import socket
 import os
 import mimetypes
 import threading
+import logging
 from datetime import datetime
 from urllib.parse import unquote, urlparse
 from typing import Optional, Tuple
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.FileHandler('server.log'), logging.StreamHandler()]
+)
+
 class HTTPServer:
     """Simple HTTP server that serves static files"""
-    def __init__(self, host: str = 'localhost', port: int = 8080, www_dir: str = 'www'):
-        """Initialize the HTTP server with host, port and web directory"""
-        self.host = host
-        self.port = port
-        self.www_dir = os.path.abspath(www_dir)
-        self.socket: Optional[socket.socket] = None
-        self.running = False
-
-        self._initialize_mime_types()
+    
+    STATUS_CODES = {
+        200: "OK", 400: "Bad Request", 403: "Forbidden", 
+        404: "Not Found", 405: "Method Not Allowed", 
+        500: "Internal Server Error", 501: "Not Implemented"
+    }
+    
+    def __init__(self, host='localhost', port=8080, www_dir='www'):
+        self.host, self.port, self.www_dir = host, port, os.path.abspath(www_dir)
+        self.socket, self.running = None, False
+        self.logger = logging.getLogger(__name__)
         
-    def _initialize_mime_types(self) -> None:
-        """Initialize MIME type mappings"""
+        if not os.path.isdir(self.www_dir):
+            raise ValueError(f"Web directory '{www_dir}' does not exist")
+        
         mimetypes.init()
         mimetypes.add_type('text/css', '.css')
         
-    def start(self) -> None:
-        """Start the server and begin listening for connections"""
-        self._setup_socket()
-        
+    def start(self):
+        """Start the server"""
         try:
-            self._bind_and_listen()
-            print(f"Server started on http://{self.host}:{self.port}")
+            self._setup_socket()
+            self.socket.bind((self.host, self.port))
+            self.socket.listen(5)
+            self.logger.info(f"Server started on http://{self.host}:{self.port}")
             self._run_server_loop()
-            
-        except Exception as e: 
-            print(f"Server error: {e}") 
-        finally: 
+        except Exception as e:
+            self.logger.error(f"Server error: {e}")
+            raise
+        finally:
             self._cleanup()
     
-    def _setup_socket(self) -> None:
+    def _setup_socket(self):
         """Configure the server socket"""
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.settimeout(1)
+        self.socket.settimeout(1.0)
     
-    def _bind_and_listen(self) -> None:
-        """Bind socket to address and start listening"""
-        self.socket.bind((self.host, self.port))
-        self.socket.listen(5)
-    
-    def _run_server_loop(self) -> None:
-        """Main server loop to accept and handle connections"""
+    def _run_server_loop(self):
+        """Main server loop"""
         self.running = True
         while self.running:
             try:
                 client_socket, client_address = self.socket.accept()
-                self._handle_client_in_thread(client_socket, client_address)
-                
+                thread = threading.Thread(
+                    target=self._handle_client, 
+                    args=(client_socket, client_address),
+                    daemon=True
+                )
+                thread.start()
             except socket.timeout:
                 continue
             except KeyboardInterrupt:
-                self.running = False
+                self.logger.info("Shutting down...")
                 break
             except Exception as e:
                 if self.running:
-                    print(f"Error accepting connection: {e}")
+                    self.logger.error(f"Accept error: {e}")
                 break
     
-    def _handle_client_in_thread(self, client_socket: socket.socket, 
-                               client_address: Tuple[str, int]) -> None:
-        """Handle client connection in a separate thread"""
-        thread = threading.Thread(
-            target=self.handle_client, 
-            args=(client_socket, client_address)
-        )
-        thread.daemon = True
-        thread.start()
-    
-    def stop(self) -> None:
-        """Stop the server"""
-        self.running = False
-    
-    def handle_client(self, client_socket: socket.socket, 
-                     client_address: Tuple[str, int]) -> None:
-        """Handle a single client request"""
+    def _handle_client(self, client_socket, client_address):
+        """Handle client connection"""
         try:
-            request_data = client_socket.recv(1024).decode('utf-8')
-            if not request_data:
-                return
+            client_socket.settimeout(10.0)
+            request_data = client_socket.recv(4096).decode('utf-8')
+            
+            if request_data:
+                self._log_request(client_address, request_data)
+                self._process_request(client_socket, request_data)
                 
-            self.log_request(client_address, request_data)
-            self._process_request(client_socket, request_data)
-            
         except Exception as e:
-            print(f"Error handling client {client_address}: {e}")
-            self._send_error_safe(client_socket, 500, "Internal Server Error")
+            self.logger.error(f"Client {client_address} error: {e}")
+            self._send_error(client_socket, 500)
         finally:
-            self._close_client_socket(client_socket)
+            self._close_socket(client_socket)
     
-    def _process_request(self, client_socket: socket.socket, request_data: str) -> None:
-        """Parse and process the HTTP request"""
-        request_line = request_data.split('\n')[0].strip()
-        if not request_line:
-            self.send_error(client_socket, 400, "Bad Request")
-            return
+    def _process_request(self, client_socket, request_data):
+        """Parse and process HTTP request"""
+        lines = request_data.split('\n')
+        if not lines or not lines[0].strip():
+            return self._send_error(client_socket, 400)
             
-        parts = request_line.split()
-        if len(parts) < 2:
-            self.send_error(client_socket, 400, "Bad Request")
-            return
+        parts = lines[0].strip().split()
+        if len(parts) != 3:
+            return self._send_error(client_socket, 400)
             
-        method, path = parts[0], parts[1]
-
-        if method != 'GET':
-            self.send_error(client_socket, 405, "Method Not Allowed")
-            return
-
-        self.handle_get_request(client_socket, path)
-    
-    def handle_get_request(self, client_socket: socket.socket, path: str) -> None:
-        """Handle GET requests by serving the appropriate file"""
-        file_path = self._resolve_file_path(path)
+        method, path, version = parts
         
-        if file_path is None:
-            self.send_error(client_socket, 403, "Forbidden")
-            return
+        if method != 'GET':
+            return self._send_error(client_socket, 405)
+        if not version.startswith('HTTP/1.'):
+            return self._send_error(client_socket, 400)
+            
+        self._handle_get(client_socket, path)
+    
+    def _handle_get(self, client_socket, path):
+        """Handle GET request"""
+        file_path = self._resolve_path(path)
+        
+        if not file_path:
+            return self._send_error(client_socket, 403)
             
         if os.path.isdir(file_path):
-            file_path = os.path.join(file_path, 'index.html')
-            
-        if not os.path.exists(file_path) or not os.path.isfile(file_path):
-            self.send_error(client_socket, 404, "File Not Found")
-            return
-
-        self.serve_file(client_socket, file_path)
-    
-    def _resolve_file_path(self, url_path: str) -> Optional[str]:
-        """Convert URL path to filesystem path with safety checks"""
-        parsed_path = urlparse(url_path)
-        path = unquote(parsed_path.path)
-
-        # Default to index.html for root path
-        if path == '/':
-            path = '/index.html'
-
-        # Remove leading slash for filesystem path
-        if path.startswith('/'):
-            path = path[1:]
-            
-        # Build full filesystem path
-        file_path = os.path.join(self.www_dir, path)
+            index_path = os.path.join(file_path, 'index.html')
+            if os.path.isfile(index_path):
+                file_path = index_path
+            else:
+                return self._send_error(client_socket, 403)
         
-        # Security check: prevent directory traversal
-        if not self._is_safe_path(file_path):
-            return None
+        if not os.path.isfile(file_path):
+            return self._send_error(client_socket, 404)
             
-        return file_path
+        # Check for unsupported file types (501 example)
+        if file_path.lower().endswith(('.php', '.jsp', '.asp')):
+            return self._send_error(client_socket, 501)
+            
+        self._serve_file(client_socket, file_path)
     
-    def _is_safe_path(self, path: str) -> bool:
-        """Check if the requested path is within the allowed directory"""
-        requested_path = os.path.abspath(path)
-        return requested_path.startswith(self.www_dir)
-    
-    def serve_file(self, client_socket: socket.socket, file_path: str) -> None:
-        """Serve a static file with appropriate headers"""
+    def _resolve_path(self, url_path):
+        """Convert URL path to safe filesystem path"""
         try:
-            content = self._read_file_content(file_path)
-            mime_type = self._get_mime_type(file_path)
+            path = unquote(urlparse(url_path).path)
+            path = os.path.normpath(path)
             
-            headers = self._build_response_headers(200, "OK", mime_type, len(content))
-            self._send_response(client_socket, headers, content)
+            if path in ('/', '.'):
+                path = '/home.html'
+            if path.startswith('/'):
+                path = path[1:]
+                
+            full_path = os.path.join(self.www_dir, path)
             
-        except IOError as e:
-            print(f"Error reading file {file_path}: {e}")
-            self.send_error(client_socket, 500, "Internal Server Error")
+            # Security check
+            if os.path.abspath(full_path).startswith(self.www_dir):
+                return full_path
+                
         except Exception as e:
-            print(f"Error sending file {file_path}: {e}")
-            self.send_error(client_socket, 500, "Internal Server Error")
+            self.logger.warning(f"Path resolution error: {e}")
+        return None
     
-    def _read_file_content(self, file_path: str) -> bytes:
-        """Read file content as binary"""
-        with open(file_path, 'rb') as f:
-            return f.read()
+    def _serve_file(self, client_socket, file_path):
+        """Serve a static file"""
+        try:
+            # Size limit check
+            if os.path.getsize(file_path) > 10 * 1024 * 1024:  # 10MB
+                return self._send_error(client_socket, 413)
+                
+            with open(file_path, 'rb') as f:
+                content = f.read()
+                
+            mime_type = mimetypes.guess_type(file_path)[0] or 'application/octet-stream'
+            self._send_response(client_socket, 200, content, mime_type)
+            
+        except FileNotFoundError:
+            self._send_error(client_socket, 404)
+        except PermissionError:
+            self._send_error(client_socket, 403)
+        except Exception as e:
+            self.logger.error(f"File serve error: {e}")
+            self._send_error(client_socket, 500)
     
-    def _get_mime_type(self, file_path: str) -> str:
-        """Determine MIME type for file"""
-        mime_type, _ = mimetypes.guess_type(file_path)
-        return mime_type or 'application/octet-stream'
-    
-    def _build_response_headers(self, status_code: int, status_text: str, 
-                              content_type: str, content_length: int) -> list:
-        """Build HTTP response headers"""
-        return [
-            f"HTTP/1.1 {status_code} {status_text}",
-            f"Content-Type: {content_type}",
-            f"Content-Length: {content_length}",
-            "Connection: close",
-            "\r\n"
-        ]
-    
-    def _send_response(self, client_socket: socket.socket, headers: list, 
-                      content: bytes) -> None:
-        """Send HTTP response with headers and content"""
-        header_data = "\r\n".join(headers).encode('utf-8')
-        client_socket.send(header_data)
+    def _send_response(self, client_socket, status_code, content, content_type):
+        """Send HTTP response"""
+        status_text = self.STATUS_CODES[status_code]
+        headers = (
+            f"HTTP/1.1 {status_code} {status_text}\r\n"
+            f"Date: {datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')}\r\n"
+            f"Server: SimpleHTTPServer/1.0\r\n"
+            f"Content-Type: {content_type}\r\n"
+            f"Content-Length: {len(content)}\r\n"
+            f"Connection: close\r\n\r\n"
+        )
+        
+        client_socket.send(headers.encode('utf-8'))
         client_socket.send(content)
     
-    def send_error(self, client_socket: socket.socket, status_code: int, 
-                  status_text: str) -> None:
-        """Send an HTTP error response"""
-        content = self._get_error_content(status_code).encode('utf-8')
-        headers = self._build_response_headers(status_code, status_text, 
-                                             "text/html; charset=utf-8", len(content))
+    def _send_error(self, client_socket, status_code):
+        """Send error response"""
+        try:
+            content = self._get_error_content(status_code)
+            self._send_response(client_socket, status_code, content.encode('utf-8'), 'text/html; charset=utf-8')
+        except Exception:
+            pass  # Client disconnected
+    
+    def _get_error_content(self, status_code):
+        """Get error page content"""
+        # Try custom error page first
+        error_file = os.path.join(self.www_dir, f"{status_code}.html")
+        if os.path.isfile(error_file):
+            try:
+                with open(error_file, 'r', encoding='utf-8') as f:
+                    return f.read()
+            except Exception:
+                pass
         
-        try:
-            self._send_response(client_socket, headers, content)
-        except:
-            pass  # Client may have disconnected
+        # Default error page
+        status_text = self.STATUS_CODES.get(status_code, "Error")
+        return f"""<!DOCTYPE html>
+            <html><head><title>{status_code} {status_text}</title></head>
+            <body style="font-family:Arial;text-align:center;margin-top:100px;">
+            <h1 style="color:#e74c3c;">{status_code}</h1>
+            <h2>{status_text}</h2>
+            <p>La risorsa richiesta non è disponibile.</p>
+            <a href="/" style="color:#3498db;">Torna alla homepage</a>
+            </body></html>"""
     
-    def _send_error_safe(self, client_socket: socket.socket, status_code: int,
-                        status_text: str) -> None:
-        """Safely send error response (handles client disconnection)"""
+    def _log_request(self, client_address, request):
+        """Log client request"""
         try:
-            self.send_error(client_socket, status_code, status_text)
-        except:
+            request_line = request.split('\n')[0].strip()
+            self.logger.info(f"{client_address[0]}:{client_address[1]} - {request_line}")
+        except Exception:
             pass
     
-    def _get_error_content(self, status_code: int) -> str:
-        """Get error page content for given status code"""
-        error_pages = {
-            404: self._get_404_page(),
-            403: "<h1>403 Forbidden</h1><p>Access denied.</p>",
-            405: "<h1>405 Method Not Allowed</h1><p>Method not supported.</p>",
-            500: "<h1>500 Internal Server Error</h1><p>Internal server error.</p>",
-            400: "<h1>400 Bad Request</h1><p>Malformed request.</p>"
-        }
-        return error_pages.get(status_code, f"<h1>{status_code} Error</h1>")
-    
-    def _get_404_page(self) -> str:
-        """Load custom 404 error page"""
-        error_file = os.path.join(self.www_dir, "404.html")
+    def _close_socket(self, sock):
+        """Safely close socket"""
         try:
-            with open(error_file, 'r', encoding='utf-8') as f:
-                return f.read()
-        except IOError:
-            return self._get_default_404_page()
-    
-    def _get_default_404_page(self) -> str:
-        """Get default 404 page content"""
-        return """
-        <!DOCTYPE html>
-        <html>
-        <head><title>404 Not Found</title></head>
-        <body style="font-family: Arial; text-align: center; margin-top: 100px;">
-            <h1>404 - Page Not Found</h1>
-            <a href="/">Torna alla homepage</a>
-        </body>
-        </html>
-        """
-    
-    def _close_client_socket(self, client_socket: socket.socket) -> None:
-        """Safely close client socket"""
-        try:
-            client_socket.close()
-        except:
+            sock.shutdown(socket.SHUT_RDWR)
+            sock.close()
+        except Exception:
             pass
-
-    def log_request(self, client_address: Tuple[str, int], request: str) -> None:
-        """Log incoming requests"""
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        request_line = request.split('\n')[0].strip() if request else "Invalid request"
-        print(f"[{timestamp}] {client_address[0]}:{client_address[1]} - {request_line}")
     
-    def _cleanup(self) -> None:
-        """Clean up server resources"""
-        if self.socket: 
-            self.socket.close()
-        print("Server stopped.")
+    def _cleanup(self):
+        """Cleanup server resources"""
+        self.running = False
+        if self.socket:
+            self._close_socket(self.socket)
+        self.logger.info("Server stopped")
+    
+    def stop(self):
+        """Stop the server"""
+        self.running = False
 
 
-def main() -> None:
-    """Main function to start the HTTP server"""
+def main():
+    """Start the HTTP server"""
     if not os.path.exists('www'):
         print("ERROR: 'www' directory does not exist!")
         return
     
-    server = HTTPServer(host='localhost', port=8080, www_dir='www')
-    
+    server = HTTPServer()
     try:
         server.start()
     except KeyboardInterrupt:
