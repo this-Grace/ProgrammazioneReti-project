@@ -8,9 +8,23 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{lstautogobble}
+\usepackage{enumitem}
 
 \usepackage[italian]{babel}
 \usepackage[italian]{cleveref}
+
+% Configurazione listing
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    showstringspaces=false,
+    autogobble=true,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt
+}
 
 \title{Elaborato per il corso \\ \textit{Programmazione di Reti}}
 \author{Grazia Bochdanovits de Kavna}
@@ -27,7 +41,7 @@
 Il presente progetto ha l'obiettivo di realizzare un \textbf{web server HTTP} in \textbf{Python}, realizzato utilizzando socket per gestire le connessioni di rete. 
 Il server è progettato per rispondere sulla \textbf{porta 8080} di \texttt{localhost} e servire contenuti statici dalla directory \texttt{www/}.
 
-Il lavoro implementa tutti i requisiti minimi richiesti dalla traccia: gestione delle richieste \texttt{GET} con risposta 200, servizio di almeno tre pagine HTML statiche (\texttt{index.html}, \texttt{login.html}, \texttt{contact.html}), e corretta gestione degli errori 404 per file inesistenti. 
+Il lavoro implementa tutti i requisiti minimi richiesti dalla traccia: gestione delle richieste \texttt{GET} con risposta 200, servizio di almeno tre pagine HTML statiche, e corretta gestione degli errori 404 per file inesistenti. 
 
 Sono state inoltre implementate le estensioni opzionali previste, tra cui il supporto per \textit{MIME types} (HTML, CSS), il logging delle richieste con \textit{timestamp}, e un layout responsive con animazioni CSS.
 
@@ -45,121 +59,167 @@ Il sistema è organizzato nei seguenti componenti principali:
 \end{itemize}
 
 \chapter{Implementazione del web server}
-
 \section{Struttura generale}
 
-L'implementazione del web server è stata realizzata attraverso una classe Python \texttt{HTTPServer} che incapsula tutte le funzionalità necessarie per servire contenuti statici via HTTP. 
-La struttura del server segue un approccio object-oriented che favorisce modularità e manutenibilità del codice.
+Il web server è stato implementato in Python utilizzando esclusivamente moduli della standard library. L'architettura segue il pattern classico dei server HTTP multi-threading, dove ogni connessione client viene gestita da un thread separato. La classe principale \texttt{HTTPServer} incapsula tutta la logica del server.
 
-\subsection{Architettura della classe \texttt{HTTPServer}}
-
-La classe principale \texttt{HTTPServer} è organizzata in componenti specifici, ognuno implementato attraverso metodi dedicati:
+La struttura del codice è organizzata nei seguenti componenti principali:
 
 \begin{itemize}
-    \item \textbf{Configurazione iniziale}: I metodi \texttt{\_\_init\_\_} e \texttt{\_initialize\_mime\_types} gestiscono l'inizializzazione del server e la configurazione dei tipi MIME supportati.
-    \item \textbf{Gestione socket}: I metodi \texttt{\_setup\_socket}, \texttt{\_bind\_and\_listen} e \texttt{\_cleanup} si occupano della configurazione e gestione del socket di rete durante tutto il ciclo di vita del server.
-    \item \textbf{Elaborazione richieste}: I metodi \texttt{handle\_client}, \texttt{\_process\_request} e \texttt{handle\_get\_request} implementano il parsing e il processamento delle richieste HTTP.
-    \item \textbf{Generazione risposte}: I metodi \texttt{serve\_file}, \texttt{send\_error}, \texttt{\_build\_response\_headers} e \texttt{\_send\_response} costruiscono e inviano le risposte HTTP appropriate.
-    \item \textbf{Gestione concorrenza}: I metodi \texttt{\_handle\_client\_in\_thread} e il main loop \texttt{\_run\_server\_loop} gestiscono le connessioni concorrenti attraverso thread separati.
-    \item \textbf{Controlli sicurezza}: I metodi \texttt{\_resolve\_file\_path} e \texttt{\_is\_safe\_path} implementano i controlli di sicurezza per prevenire accessi non autorizzati al filesystem.
-    \item \textbf{Utility}: Metodi di supporto come \texttt{log\_request}, \texttt{\_read\_file\_content}, \texttt{\_get\_mime\_type} forniscono funzionalità ausiliarie.
+    \item \textbf{Classe HTTPServer}: Classe principale che gestisce l'intero ciclo di vita del server
+    \item \textbf{Gestione delle connessioni}: Accettazione delle connessioni e creazione di thread dedicati
+    \item \textbf{Parsing delle richieste}: Analisi degli header HTTP e estrazione dei parametri
+    \item \textbf{Resolving dei path}: Conversione sicura degli URL in percorsi del filesystem
+    \item \textbf{Servizio dei file}: Gestione dei file statici con controllo dei permessi
+    \item \textbf{Gestione degli errori}: Produzione di pagine di errore appropriate
 \end{itemize}
-
-\subsection{Ciclo di vita del Server}
-
-Il server opera secondo un ciclo di vita ben definito:
-
-\begin{enumerate}
-    \item \textbf{Inizializzazione}: Configurazione parametri e mappatura MIME types attraverso \texttt{\_\_init\_\_} e \texttt{\_initialize\_mime\_types}.
-    \item \textbf{Startup}: Creazione socket e binding all'indirizzo specificato tramite \texttt{\_setup\_socket} e \texttt{\_bind\_and\_listen}.
-    \item \textbf{Main loop}: Accettazione connessioni client nel metodo \texttt{\_run\_server\_loop}, con delega a \texttt{\_handle\_client\_in\_thread} per la gestione in thread separati.
-    \item \textbf{Shutdown}: Chiusura ordinata delle risorse attraverso \texttt{stop} e \texttt{\_cleanup}.
-\end{enumerate}
 
 \section{Gestione delle richieste}
 
-\subsection{Validazione dei metodi HTTP}
+Il processo di gestione delle richieste segue un flusso ben definito:
 
-Il server implementa una whitelist approach, accettando esclusivamente richieste GET per garantire sicurezza e semplicità:
+\subsection{Accettazione delle connessioni}
+Il server rimane in attesa su una socket configurata con opzioni di riutilizzo dell'indirizzo. Quando una connessione viene accettata, viene creato un nuovo thread che gestirà il client fino al completamento della richiesta.
 
-\begin{lstlisting}[language=Python]
-if method != 'GET':
-    self.send_error(client_socket, 405, "Method Not Allowed")
-    return
+\begin{lstlisting}
+def _run_server_loop(self):
+    self.running = True
+    while self.running:
+        try:
+            client_socket, client_address = self.socket.accept()
+            thread = threading.Thread(
+                target=self._handle_client, 
+                args=(client_socket, client_address),
+                daemon=True
+            )
+            thread.start()
+        except socket.timeout:
+            continue
+        except KeyboardInterrupt:
+            self.logger.info("Shutting down...")
+            break
+        except Exception as e:
+            if self.running:
+                self.logger.error(f"Accept error: {e}")
+            break
 \end{lstlisting}
 
-\subsection{Risoluzione dei path}
+\subsection{Parsing della richiesta}
+La richiesta HTTP viene analizzata estraendo il metodo, il path e la versione del protocollo. Sono supportati esclusivamente richieste GET secondo lo standard HTTP/1.x.
 
-La risoluzione dei path URL avviene attraverso un processo di parsing e normalizzazione che include controlli di sicurezza per prevenire directory traversal attacks:
-
-\begin{lstlisting}[language=Python]
-def _resolve_file_path(self, url_path: str) -> Optional[str]:
-    parsed_path = urlparse(url_path)
-    path = unquote(parsed_path.path)
-    # ... normalizzazione e controlli di sicurezza
+\begin{lstlisting}
+def _process_request(self, client_socket, request_data):
+    lines = request_data.split('\n')
+    if not lines or not lines[0].strip():
+        return self._send_error(client_socket, 400)
+        
+    parts = lines[0].strip().split()
+    if len(parts) != 3:
+        return self._send_error(client_socket, 400)
+        
+    method, path, version = parts
+    if method != 'GET':
+        return self._send_error(client_socket, 405)
+    if not version.startswith('HTTP/1.'):
+        return self._send_error(client_socket, 400)
+        
+    self._handle_get(client_socket, path)
 \end{lstlisting}
 
-\subsection{Threading e concorrenza}
+\subsection{Resolving del percorso}
+Il path richiesto viene normalizzato e convertito in un percorso del filesystem locale, con controlli di sicurezza per prevenire directory traversal attacks.
 
-Ogni richiesta client viene gestita in un thread separato, permettendo al server di servire multiple connessioni simultaneamente:
+\begin{lstlisting}
+def _resolve_path(self, url_path):
+    try:
+        path = unquote(urlparse(url_path).path)
+        path = os.path.normpath(path)
+        
+        if path in ('/', '.'):
+            path = '/home.html'
+        if path.startswith('/'):
+            path = path[1:]
+            
+        full_path = os.path.join(self.www_dir, path)
+        
+        # Security check
+        if os.path.abspath(full_path).startswith(self.www_dir):
+            return full_path
+            
+    except Exception as e:
+        self.logger.warning(f"Path resolution error: {e}")
+    return None
+\end{lstlisting}
 
-\begin{lstlisting}[language=Python]
-thread = threading.Thread(
-    target=self.handle_client,
-    args=(client_socket, client_address)
+\subsection{Servizio dei file}
+I file vengono serviti con il corretto Content-Type determinato automaticamente. Sono implementati controlli per:
+\begin{itemize}
+    \item Dimensioni massime dei file (10MB)
+    \item Tipi di file supportati (esclusi .php, .jsp, .asp)
+    \item Gestione automatica di index.html per le directory
+    \item Pagine di errore personalizzabili
+\end{itemize}
+
+\begin{lstlisting}
+def _serve_file(self, client_socket, file_path):
+    try:
+        # Size limit check
+        if os.path.getsize(file_path) > 10 * 1024 * 1024:
+            return self._send_error(client_socket, 413)
+            
+        with open(file_path, 'rb') as f:
+            content = f.read()
+            
+        mime_type = mimetypes.guess_type(file_path)[0] or 'application/octet-stream'
+        self._send_response(client_socket, 200, content, mime_type)
+        
+    except FileNotFoundError:
+        self._send_error(client_socket, 404)
+    except PermissionError:
+        self._send_error(client_socket, 403)
+    except Exception as e:
+        self.logger.error(f"File serve error: {e}")
+        self._send_error(client_socket, 500)
+\end{lstlisting}
+
+\subsection{Gestione degli errori}
+Il server produce pagine di errore appropriate per i vari codici di stato HTTP. Sono supportate sia pagine personalizzate (es. 404.html) che pagine di default generate dinamicamente.
+
+\begin{lstlisting}
+def _get_error_content(self, status_code):
+    # Try custom error page first
+    error_file = os.path.join(self.www_dir, f"{status_code}.html")
+    if os.path.isfile(error_file):
+        try:
+            with open(error_file, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception:
+            pass
+    
+    # Default error page
+    status_text = self.STATUS_CODES.get(status_code, "Error")
+    return f"""<!DOCTYPE html>
+        <html><head><title>{status_code} {status_text}</title></head>
+        <body style="font-family:Arial;text-align:center;margin-top:100px;">
+        <h1 style="color:#e74c3c;">{status_code}</h1>
+        <h2>{status_text}</h2>
+        <p>La risorsa richiesta non è disponibile.</p>
+        <a href="/" style="color:#3498db;">Torna alla homepage</a>
+        </body></html>"""
+\end{lstlisting}
+
+\subsection{Logging}
+Tutte le attività del server vengono registrate sia su file che su console, includendo timestamp, indirizzi IP client e richieste effettuate.
+
+\begin{lstlisting}
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.FileHandler('server.log'), logging.StreamHandler()]
 )
-thread.daemon = True
-thread.start()
 \end{lstlisting}
 
-\section{Gestione MIME types e logging}
-
-\subsubsection{Headers HTTP}
-
-La generazione degli headers HTTP segue lo standard HTTP/1.1, includendo tutti i campi necessari per una corretta comunicazione client-server:
-
-\begin{lstlisting}[language=Python]
-def _build_response_headers(self, status_code: int, status_text: str,
-                            content_type: str, content_length: int) -> list:
-    return [
-        f"HTTP/1.1 {status_code} {status_text}",
-        f"Content-Type: {content_type}",
-        f"Content-Length: {content_length}",
-        "Connection: close",
-        "\r\n"
-    ]
-\end{lstlisting}
-
-\subsubsection{Sistema di logging}
-
-Il sistema di logging registra timestamp, indirizzo client e dettagli della richiesta, fornendo visibilità completa sull'attività del server:
-
-\begin{lstlisting}[language=Python]
-def log_request(self, client_address: Tuple[str, int], request: str) -> None:
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    request_line = request.split('\n')[0].strip() if request else "Invalid request"
-    print(f"[{timestamp}] {client_address[0]}:{client_address[1]} - {request_line}")
-\end{lstlisting}
-
-\section{Sicurezza base}
-
-\subsection{Prevenzione directory traversal}
-
-Il controllo di sicurezza verifica che il path richiesto sia contenuto entro la directory autorizzata, prevenendo accessi a file sensibili del sistema:
-
-\begin{lstlisting}[language=Python]
-def _is_safe_path(self, path: str) -> bool:
-    requested_path = os.path.abspath(path)
-    return requested_path.startswith(self.www_dir)
-\end{lstlisting}
-
-\subsection{Gestione degli errori HTTP}
-
-Il server implementa una gestione completa degli errori HTTP con codici di stato appropriati e pagine personalizzate per migliorare l'esperienza utente.
-
-\subsection{Resource cleanup}
-
-Il sistema di cleanup garantisce il corretto rilascio delle risorse di rete e la chiusura ordinata di tutte le connessioni.
+Questa implementazione garantisce un server stabile, sicuro e conforme agli standard HTTP di base, adatto per servire contenuti statici in ambienti didattici e di testing.
 
 \chapter{Sito web statico}
 
@@ -168,7 +228,7 @@ Il sito web è composto da cinque pagine HTML statiche, tutte stilizzate mediant
 \section{Pagine HTML}
 
 \begin{itemize}
-    \item \textbf{index.html}: Homepage del sito con navigazione principale
+    \item \textbf{home.html}: Homepage del sito con navigazione principale
     \item \textbf{login.html}: Pagina di autenticazione con form per le credenziali
     \item \textbf{contact.html}: Pagina di contatto con informazioni e form
     \item \textbf{404.html}: Pagina di errore personalizzata per risorse non trovate
@@ -179,7 +239,6 @@ Il sito web è composto da cinque pagine HTML statiche, tutte stilizzate mediant
 
 Il server sviluppato in Python soddisfa pienamente i requisiti della traccia, rispondendo su \texttt{localhost:8080}, gestendo correttamente richieste GET e fornendo pagine di errore personalizzate. 
 Sono state realizzate tutte le estensioni opzionali, includendo la gestione dei MIME type, il logging delle richieste e un sito statico con layout responsive. 
-Il server rappresenta una soluzione ben strutturata che supera i requisiti minimi previsti.
 
 \section{Sviluppi Futuri}
 
@@ -198,13 +257,13 @@ Il progetto, pur essendo completo e funzionale, può essere esteso con diverse f
     \texttt{cd ProgrammazioneReti-project}
 
     \item \textbf{Avvio del server}:\\
-    \texttt{python3 server.py}
+    \texttt{python server.py}
 
     \item \textbf{Accesso al sito}:\\
     Aprire un browser e navigare su \texttt{http://localhost:8080}
 \end{enumerate}
 
-\section{Accesso alle pagines}
+\section{Accesso alle pagine}
 
 \begin{itemize}
     \item \textbf{Homepage}: \url{http://localhost:8080/}
@@ -217,7 +276,7 @@ Il progetto, pur essendo completo e funzionale, può essere esteso con diverse f
 \subsection{Note sull'accesso}
 
 \begin{itemize}
-    \item La root \texttt{/} restituisce automaticamente \texttt{index.html}.
+    \item La root \texttt{/} restituisce automaticamente \texttt{home.html}.
     \item File non esistenti mostrano la pagina \texttt{404.html}.
     \item Il form di login reindirizza a \texttt{501.html}.
 \end{itemize}
