@@ -175,10 +175,6 @@ Il sito web è composto da cinque pagine HTML statiche, tutte stilizzate mediant
     \item \textbf{501.html}: Pagina per funzionalità non ancora implementate
 \end{itemize}
 
-\section{Estendibilità}
-
-La struttura del sito è progettata per essere facilmente estendibile grazie all'utilizzo di un unico file CSS e una organizzazione chiara dei file, permettendo l'aggiunta di nuove pagine con minimo sforzo.
-
 \chapter{Conclusioni}
 
 Il server sviluppato in Python soddisfa pienamente i requisiti della traccia, rispondendo su \texttt{localhost:8080}, gestendo correttamente richieste GET e fornendo pagine di errore personalizzate. 
@@ -187,15 +183,7 @@ Il server rappresenta una soluzione ben strutturata che supera i requisiti minim
 
 \section{Sviluppi Futuri}
 
-Il progetto, pur essendo completo e funzionale, può essere esteso con diverse funzionalità avanzate:
-
-\begin{itemize}
-    \item \textbf{Supporto HTTPS}: Implementazione del protocollo TLS per comunicazioni cifrate.
-    \item \textbf{Gestione metodi aggiuntivi}: Estensione del supporto ai metodi \texttt{POST} e \texttt{PUT}.
-    \item \textbf{Sistema di caching}: Implementazione di meccanismi di caching per migliorare le performance.
-    \item \textbf{Autenticazione avanzata}: Integrazione di un sistema di autenticazione con sessioni utente.
-    \item \textbf{Supporto CGI}: Abilitazione dell'esecuzione di script CGI per contenuti dinamici.
-\end{itemize}
+Il progetto, pur essendo completo e funzionale, può essere esteso con diverse funzionalità avanzate come il supporto HTTPS per comunicazioni cifrate e l'implementazione di metodi HTTP aggiuntivi come POST per gestire l'invio di dati dai form. Queste estensioni renderebbero il server più versatile e adatto ad applicazioni reali.
 
 \appendix
 \chapter{Guida utente}
@@ -210,7 +198,7 @@ Il progetto, pur essendo completo e funzionale, può essere esteso con diverse f
     \texttt{cd ProgrammazioneReti-project}
 
     \item \textbf{Avvio del server}:\\
-    \texttt{python3 httpserver.py}
+    \texttt{python3 server.py}
 
     \item \textbf{Accesso al sito}:\\
     Aprire un browser e navigare su \texttt{http://localhost:8080}

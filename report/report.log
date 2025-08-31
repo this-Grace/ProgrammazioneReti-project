@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.7.9)  29 AUG 2025 17:40
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.7.9)  31 AUG 2025 15:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -536,7 +536,7 @@ Capitolo 5.
 ]
 Appendice A.
 
-Overfull \hbox (71.62491pt too wide) in paragraph at lines 206--208
+Overfull \hbox (71.62491pt too wide) in paragraph at lines 194--196
 \OT1/cmtt/m/n/12 git clone https://github.com/this-Grace/ProgrammazioneReti-pro
 ject.git 
  []
@@ -552,11 +552,11 @@ LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
  ***********
 Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: 9A0815FFA46681E7BDB7C039DDF2DCC0;4086.
+(rerunfilecheck)             Checksum: A96D4130F437CF66B592A694C42A13BB;3963.
  ) 
 Here is how much of TeX's memory you used:
- 14238 strings out of 474486
- 235171 string characters out of 5743756
+ 14237 strings out of 474486
+ 235155 string characters out of 5743756
  1956542 words of memory out of 5000000
  36293 multiletter control sequences out of 15000+600000
  565212 words of font info for 60 fonts, out of 8000000 for 9000
@@ -571,9 +571,9 @@ ype1/public/amsfonts/cm/cmr12.pfb><C:/Users/grazi/AppData/Local/Programs/MiKTeX
 s/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/grazi/AppData/Loca
 l/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb><C:/Users/grazi/App
 Data/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on report.pdf (12 pages, 140274 bytes).
+Output written on report.pdf (12 pages, 138961 bytes).
 PDF statistics:
- 291 PDF objects out of 1000 (max. 8388607)
- 83 named destinations out of 1000 (max. 500000)
- 201 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 286 PDF objects out of 1000 (max. 8388607)
+ 82 named destinations out of 1000 (max. 500000)
+ 193 words of extra memory for PDF output out of 10000 (max. 10000000)
 

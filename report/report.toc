@@ -19,7 +19,6 @@
 \contentsline {subsection}{\numberline {3.4.3}Resource cleanup}{7}{subsection.3.4.3}%
 \contentsline {chapter}{\numberline {4}Sito web statico}{8}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Pagine HTML}{8}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Estendibilità}{8}{section.4.2}%
 \contentsline {chapter}{\numberline {5}Conclusioni}{9}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Sviluppi Futuri}{9}{section.5.1}%
 \contentsline {chapter}{\numberline {A}Guida utente}{10}{appendix.Alph1}%
