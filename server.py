@@ -14,7 +14,6 @@ from datetime import datetime
 from urllib.parse import unquote, urlparse
 from typing import Optional, Tuple
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -148,7 +147,7 @@ class HTTPServer:
             path = os.path.normpath(path)
             
             if path in ('/', '.'):
-                path = '/home.html'
+                path = '/index.html'
             if path.startswith('/'):
                 path = path[1:]
                 
