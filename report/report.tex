@@ -73,14 +73,13 @@ Il metodo \texttt{\_process\_request} analizza la richiesta HTTP ricevuta, estra
 Il metodo \texttt{\_resolve\_path} si occupa di garantire sicurezza durante la conversione degli URL in percorsi filesystem. Il percorso richiesto viene prima decodificato (\texttt{unquote}) e analizzato (\texttt{urlparse}) per estrarre il pathname, quindi normalizzato (\texttt{os.path.normpath}) per rimuovere riferimenti relativi ridondanti. Il path viene poi ancorato alla directory root dei contenuti statici (\texttt{www\_dir}). La misura di sicurezza fondamentale è il controllo che il percorso assoluto risultante inizi effettivamente con il percorso di \texttt{www\_dir}, prevenendo così attacchi di directory traversal che potrebbero tentare di accedere a file al di fuori della directory consentita. In caso di errore o di violazione di questo controllo, il metodo restituisce \texttt{None}, inducendo il server a rispondere con un errore \texttt{403 Forbidden}.
 
 \subsection{Servizio dei file}
-I file vengono serviti con il corretto Content-Type determinato automaticamente dal metodo \texttt{\_serve\_file}. Sono implementati diversi controlli di sicurezza e validazione:
+Il metodo \texttt{\_serve\_file} gestisce il servizio dei file statici utilizzando un approccio di streaming che invia i dati in chunk da 4KB, garantendo efficienza anche con file di grandi dimensioni. Sono implementati i seguenti controlli:
 \begin{itemize}
-    \item \textbf{Dimensioni massime}: I file superiori a 10MB vengono rifiutati con errore \texttt{413 Request Entity Too Large}
-    \item \textbf{Tipi di file supportati}: File con estensioni dinamiche (\texttt{.php}, \texttt{.jsp}, \texttt{.asp}) vengono deliberatamente rifiutati con errore \texttt{501 Not Implemented}
-    \item \textbf{Gestione automatica delle directory}: Se il path richiesto corrisponde a una directory, viene automaticamente servito il file \texttt{index.html} in essa contenuto, se presente
-    \item \textbf{Rilevamento MIME type}: Il tipo MIME viene determinato automaticamente usando il modulo \texttt{mimetypes}, con fallback su \texttt{application/octet-stream}
+    \item \textbf{Supporto file}: I tipi dinamici (\texttt{.php}, \texttt{.jsp}, \texttt{.asp}) restituiscono errore \texttt{501 Not Implemented}
+    \item \textbf{Directory automatiche}: Le directory servono automaticamente \texttt{index.html} se presente
+    \item \textbf{MIME type}: Rilevamento automatico dei tipi di file con fallback su \texttt{application/octet-stream}
 \end{itemize}
-La gestione delle eccezioni assicura che errori comuni come file non trovati o permessi insufficienti vengano convertiti negli appropriati codici di stato HTTP (\texttt{404 Not Found} e \texttt{403 Forbidden} rispettivamente).
+La gestione delle eccezioni assicura che errori comuni come file non trovati o permessi insufficienti vengano convertiti negli appropriati codici di stato HTTP (\texttt{404 Not Found} e \texttt{403 Forbidden} rispettivamente), fornendo un feedback chiaro al client mentre mantiene la stabilità del server.
 
 \subsection{Gestione degli errori}
 Il server produce pagine di errore appropriate per i vari codici di stato HTTP attraverso il metodo \texttt{\_get\_error\_content}. Il sistema cerca prima pagine di errore personalizzate nella directory \texttt{www} (con naming convention \texttt{[codice].html}). Se non trova una pagina personalizzata per quel specifico codice di errore, genera dinamicamente una pagina di default con un messaggio di errore chiaro e un link per tornare alla homepage. Questo approccio ibrido offre flessibilità nella personalizzazione mantenendo al contempo una risposta appropriata per tutti i possibili errori.
@@ -109,7 +108,7 @@ Sono state realizzate tutte le estensioni opzionali, includendo la gestione dei 
 
 \section{Sviluppi Futuri}
 
-Il progetto, pur essendo completo e funzionale, può essere esteso con diverse funzionalità avanzate come il supporto HTTPS per comunicazioni cifrate e l'implementazione di metodi HTTP aggiuntivi come POST per gestire l'invio di dati dai form. Queste estensioni renderebbero il server più versatile e adatto ad applicazioni reali.
+Il progetto può essere esteso con diverse funzionalità avanzate come il supporto HTTPS per comunicazioni cifrate e l'implementazione di metodi HTTP aggiuntivi come POST per gestire l'invio di dati dai form. Queste estensioni renderebbero il server più versatile e adatto ad applicazioni reali.
 
 \appendix
 \chapter{Guida utente}
