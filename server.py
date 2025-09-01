@@ -164,16 +164,26 @@ class HTTPServer:
     def _serve_file(self, client_socket, file_path):
         """Serve a static file"""
         try:
-            # Size limit check
-            if os.path.getsize(file_path) > 10 * 1024 * 1024:  # 10MB
-                return self._send_error(client_socket, 413)
-                
-            with open(file_path, 'rb') as f:
-                content = f.read()
-                
+            file_size = os.path.getsize(file_path)
             mime_type = mimetypes.guess_type(file_path)[0] or 'application/octet-stream'
-            self._send_response(client_socket, 200, content, mime_type)
-            
+
+            headers = (
+                f"HTTP/1.1 200 OK\r\n"
+                f"Date: {datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')}\r\n"
+                f"Server: SimpleHTTPServer/1.0\r\n"
+                f"Content-Type: {mime_type}\r\n"
+                f"Content-Length: {file_size}\r\n"
+                f"Connection: close\r\n\r\n"
+            )
+            client_socket.send(headers.encode('utf-8'))
+
+            with open(file_path, 'rb') as f:
+                while True:
+                    chunk = f.read(4096)
+                    if not chunk:
+                        break
+                    client_socket.send(chunk)
+                
         except FileNotFoundError:
             self._send_error(client_socket, 404)
         except PermissionError:
@@ -223,8 +233,7 @@ class HTTPServer:
             <body style="font-family:Arial;text-align:center;margin-top:100px;">
             <h1 style="color:#e74c3c;">{status_code}</h1>
             <h2>{status_text}</h2>
-            <p>La risorsa richiesta non è disponibile.</p>
-            <a href="/" style="color:#3498db;">Torna alla homepage</a>
+            <a href="/" style="color:#3498db;">Return to homepage</a>
             </body></html>"""
     
     def _log_request(self, client_address, request):
