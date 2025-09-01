@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.7.9)  31 AUG 2025 16:41
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.7.9)  1 SEP 2025 11:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -237,55 +237,24 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 )
 \Hy@SectionHShift=\skip50
 )
-(C:\Users\grazi\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.sty
-\lst@mode=\count278
-\lst@gtempboxa=\box54
-\lst@token=\toks22
-\lst@length=\count279
-\lst@currlwidth=\dimen147
-\lst@column=\count280
-\lst@pos=\count281
-\lst@lostspace=\dimen148
-\lst@width=\dimen149
-\lst@newlines=\count282
-\lst@lineno=\count283
-\lst@maxwidth=\dimen150
-
-(C:\Users\grazi\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
-File: lstmisc.sty 2023/02/27 1.9 (Carsten Heinz)
-\c@lstnumber=\count284
-\lst@skipnumbers=\count285
-\lst@framebox=\box55
-)
-(C:\Users\grazi\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg
-File: listings.cfg 2023/02/27 1.9 listings configuration
-))
-Package: listings 2023/02/27 1.9 (Carsten Heinz)
-
-(C:\Users\grazi\AppData\Local\Programs\MiKTeX\tex/latex/lstaddons\lstautogobble
-.sty
-Package: lstautogobble 2012/05/03 v0.1 Implements 'autogobble' option for 'list
-ings'
-\lstag@spacecount=\count286
-)
 (C:\Users\grazi\AppData\Local\Programs\MiKTeX\tex/latex/enumitem\enumitem.sty
 Package: enumitem 2025/02/06 v3.11 Customized lists
 \labelindent=\skip51
-\enit@outerparindent=\dimen151
-\enit@toks=\toks23
-\enit@inbox=\box56
-\enit@count@id=\count287
-\enitdp@description=\count288
+\enit@outerparindent=\dimen147
+\enit@toks=\toks22
+\enit@inbox=\box54
+\enit@count@id=\count278
+\enitdp@description=\count279
 )
 (C:\Users\grazi\AppData\Local\Programs\MiKTeX\tex/generic/babel\babel.sty
 Package: babel 2024/01/07 v24.1 The Babel package
-\babel@savecnt=\count289
-\U@D=\dimen152
+\babel@savecnt=\count280
+\U@D=\dimen148
 \l@unhyphenated=\language79
 
 (C:\Users\grazi\AppData\Local\Programs\MiKTeX\tex/generic/babel\txtbabel.def)
 \bbl@readstream=\read3
-\bbl@dirlevel=\count290
+\bbl@dirlevel=\count281
 
 *************************************
 * Local config file bblopts.cfg used
@@ -297,9 +266,9 @@ File: bblopts.cfg 2005/09/08 v0.1 add Arabic and Farsi to "declared" options of
 (C:\Users\grazi\AppData\Local\Programs\MiKTeX\tex/latex/babel-italian\italian.l
 df
 Language: italian 2024/10/10 v.1.5.01 Italian support for the babel system
-\it@lettering=\count291
-\it@doublequoteactive=\count292
-\it@ISOcompliance=\count293
+\it@lettering=\count282
+\it@doublequoteactive=\count283
+\it@ISOcompliance=\count284
 ))
 (C:\Users\grazi\AppData\Local\Programs\MiKTeX\tex/generic/babel/locale/it\babel
 -italian.tex
@@ -319,52 +288,48 @@ LaTeX Info: Redefining \cpagerefrange on input line 2370.
 LaTeX Info: Redefining \Cpagerefrange on input line 2370.
 LaTeX Info: Redefining \labelcref on input line 2370.
 LaTeX Info: Redefining \labelcpageref on input line 2370.
-Package cleveref Info: `listings' support loaded on input line 3131.
-)
-(C:\Users\grazi\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstlang1.sty
-File: lstlang1.sty 2023/02/27 1.9 listings language file
 )
 (C:\Users\grazi\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
 tex.def
 File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count294
-\l__pdf_internal_box=\box57
+\l__color_backend_stack_int=\count285
+\l__pdf_internal_box=\box55
 ) (report.aux)
 \openout1 = `report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
 
 (C:\Users\grazi\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
 ii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count295
-\scratchdimen=\dimen153
-\scratchbox=\box58
-\nofMPsegments=\count296
-\nofMParguments=\count297
-\everyMPshowfont=\toks24
-\MPscratchCnt=\count298
-\MPscratchDim=\dimen154
-\MPnumerator=\count299
-\makeMPintoPDFobject=\count300
-\everyMPtoPDFconversion=\toks25
+\scratchcounter=\count286
+\scratchdimen=\dimen149
+\scratchbox=\box56
+\nofMPsegments=\count287
+\nofMParguments=\count288
+\everyMPshowfont=\toks23
+\MPscratchCnt=\count289
+\MPscratchDim=\dimen150
+\MPnumerator=\count290
+\makeMPintoPDFobject=\count291
+\everyMPtoPDFconversion=\toks24
 )
 (C:\Users\grazi\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
 ase.sty
@@ -384,14 +349,13 @@ G,.JBIG2,.JB2,.eps]
 fg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring OFF on input line 33.
+Package hyperref Info: Link coloring OFF on input line 18.
  (report.out) (report.out)
 \@outlinefile=\write4
 \openout4 = `report.out'.
 
-\c@lstlisting=\count301
-LaTeX Info: Redefining \it@ocap on input line 33.
-LaTeX Info: Redefining \it@ccap on input line 33.
+LaTeX Info: Redefining \it@ocap on input line 18.
+LaTeX Info: Redefining \it@ccap on input line 18.
 
 
 File italian.ldf warning: 
@@ -399,12 +363,12 @@ italian.ldf    With OT1 encoding guillemets are poorly faked
 italian.ldf    Use T1 encoding
 italian.ldf    or specify a font with command \CaporaliFrom
 italian.ldf    See the documentation concerning the babel-italian typesetting
-italian.ldf    on input line 33.
+italian.ldf    on input line 18.
 
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <14.4> on input line 36.
+(Font)              <14.4> on input line 21.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 36.
+(Font)              <7> on input line 21.
 [1
 
 {C:/Users/grazi/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
@@ -426,7 +390,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.39 \chapter
+l.24 \chapter
              {Introduzione} [1
 
 ]
@@ -441,49 +405,43 @@ Capitolo 2.
 Capitolo 3.
 [4
 
-]
-LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 85.
- [5] [6] [7]
+] [5]
+Overfull \hbox (12.4807pt too wide) in paragraph at lines 79--80
+\OT1/cmtt/m/n/12 .asp\OT1/cmr/m/n/12 ) ven-go-no de-li-be-ra-ta-men-te ri-fiu-t
+a-ti con er-ro-re \OT1/cmtt/m/n/12 501 Not Implemented 
+ []
 
-! LaTeX Error: Invalid UTF-8 byte sequence (�\lst@FillFixed@).
 
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.206         <p>La risorsa richiesta non è 
-                                             disponibile.</p>
-? 
+Overfull \hbox (4.40213pt too wide) in paragraph at lines 80--81
+\OT1/cmr/m/n/12 spon-de a una di-rec-to-ry, vie-ne au-to-ma-ti-ca-men-te ser-vi
+-to il fi-le \OT1/cmtt/m/n/12 index.html
+ []
 
-! LaTeX Error: Invalid UTF-8 byte "A8.
 
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.206         <p>La risorsa richiesta non è 
-                                             disponibile.</p>
-? 
-[8]
+Overfull \hbox (66.46275pt too wide) in paragraph at lines 81--82
+\OT1/cmr/m/n/12 ti-ca-men-te usan-do il mo-du-lo \OT1/cmtt/m/n/12 mimetypes\OT1
+/cmr/m/n/12 , con fall-back su \OT1/cmtt/m/n/12 application/octet-stream 
+ []
+
+[6]
 Capitolo 4.
-[9
+[7
 
 ]
 Capitolo 5.
-[10
+[8
 
 ]
 Appendice A.
 
-Overfull \hbox (71.62491pt too wide) in paragraph at lines 253--255
+Overfull \hbox (71.62491pt too wide) in paragraph at lines 120--122
 \OT1/cmtt/m/n/12 git clone https://github.com/this-Grace/ProgrammazioneReti-pro
 ject.git 
  []
 
-[11
+[9
 
-] [12] (report.aux
+] [10] (report.aux
 Package cleveref Info: loaded `italian' language definitions on input line 7.
 Package cleveref Info: loaded `italian' language definitions on input line 8.
 )
@@ -495,26 +453,23 @@ Package rerunfilecheck Info: File `report.out' has not changed.
 (rerunfilecheck)             Checksum: 95E5B804F72B87AC5AE367AC7C2F2512;3049.
  ) 
 Here is how much of TeX's memory you used:
- 14618 strings out of 474486
- 241435 string characters out of 5743756
- 2112542 words of memory out of 5000000
- 36613 multiletter control sequences out of 15000+600000
- 565679 words of font info for 62 fonts, out of 8000000 for 9000
+ 12634 strings out of 474486
+ 214511 string characters out of 5743756
+ 1933542 words of memory out of 5000000
+ 34754 multiletter control sequences out of 15000+600000
+ 565043 words of font info for 59 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,6n,79p,384b,2054s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,6n,79p,918b,565s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\grazi\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm
 1200.pk><C:/Users/grazi/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfon
 ts/cm/cmbx12.pfb><C:/Users/grazi/AppData/Local/Programs/MiKTeX/fonts/type1/publ
-ic/amsfonts/cm/cmitt10.pfb><C:/Users/grazi/AppData/Local/Programs/MiKTeX/fonts/
-type1/public/amsfonts/cm/cmr12.pfb><C:/Users/grazi/AppData/Local/Programs/MiKTe
-X/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/grazi/AppData/Local/Progra
-ms/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Users/grazi/AppData/Local
-/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb><C:/Users/grazi/AppD
-ata/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Users/g
-razi/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on report.pdf (13 pages, 169013 bytes).
+ic/amsfonts/cm/cmr12.pfb><C:/Users/grazi/AppData/Local/Programs/MiKTeX/fonts/ty
+pe1/public/amsfonts/cm/cmr17.pfb><C:/Users/grazi/AppData/Local/Programs/MiKTeX/
+fonts/type1/public/amsfonts/cm/cmti12.pfb><C:/Users/grazi/AppData/Local/Program
+s/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on report.pdf (11 pages, 109523 bytes).
 PDF statistics:
- 350 PDF objects out of 1000 (max. 8388607)
- 143 named destinations out of 1000 (max. 500000)
+ 199 PDF objects out of 1000 (max. 8388607)
+ 36 named destinations out of 1000 (max. 500000)
  161 words of extra memory for PDF output out of 10000 (max. 10000000)
 

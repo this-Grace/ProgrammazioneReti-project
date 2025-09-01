@@ -7,16 +7,16 @@
 \contentsline {section}{\numberline {3.2}Gestione delle richieste}{4}{section.3.2}%
 \contentsline {subsection}{\numberline {3.2.1}Accettazione delle connessioni}{5}{subsection.3.2.1}%
 \contentsline {subsection}{\numberline {3.2.2}Parsing della richiesta}{5}{subsection.3.2.2}%
-\contentsline {subsection}{\numberline {3.2.3}Resolving del percorso}{6}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.3}Resolving del percorso}{5}{subsection.3.2.3}%
 \contentsline {subsection}{\numberline {3.2.4}Servizio dei file}{6}{subsection.3.2.4}%
-\contentsline {subsection}{\numberline {3.2.5}Gestione degli errori}{7}{subsection.3.2.5}%
-\contentsline {subsection}{\numberline {3.2.6}Logging}{8}{subsection.3.2.6}%
-\contentsline {chapter}{\numberline {4}Sito web statico}{9}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Pagine HTML}{9}{section.4.1}%
-\contentsline {chapter}{\numberline {5}Conclusioni}{10}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Sviluppi Futuri}{10}{section.5.1}%
-\contentsline {chapter}{\numberline {A}Guida utente}{11}{appendix.Alph1}%
-\contentsline {section}{\numberline {A.1}Installazione e Avvio}{11}{section.Alph1.1}%
-\contentsline {section}{\numberline {A.2}Accesso alle pagine}{11}{section.Alph1.2}%
-\contentsline {subsection}{\numberline {A.2.1}Note sull'accesso}{11}{subsection.Alph1.2.1}%
-\contentsline {section}{\numberline {A.3}Arresto del Server}{12}{section.Alph1.3}%
+\contentsline {subsection}{\numberline {3.2.5}Gestione degli errori}{6}{subsection.3.2.5}%
+\contentsline {subsection}{\numberline {3.2.6}Logging}{6}{subsection.3.2.6}%
+\contentsline {chapter}{\numberline {4}Sito web statico}{7}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Pagine HTML}{7}{section.4.1}%
+\contentsline {chapter}{\numberline {5}Conclusioni}{8}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Sviluppi Futuri}{8}{section.5.1}%
+\contentsline {chapter}{\numberline {A}Guida utente}{9}{appendix.Alph1}%
+\contentsline {section}{\numberline {A.1}Installazione e Avvio}{9}{section.Alph1.1}%
+\contentsline {section}{\numberline {A.2}Accesso alle pagine}{9}{section.Alph1.2}%
+\contentsline {subsection}{\numberline {A.2.1}Note sull'accesso}{9}{subsection.Alph1.2.1}%
+\contentsline {section}{\numberline {A.3}Arresto del Server}{10}{section.Alph1.3}%

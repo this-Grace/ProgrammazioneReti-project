@@ -6,25 +6,10 @@
 \usepackage{float}
 \usepackage{xcolor}
 \usepackage{hyperref}
-\usepackage{listings}
-\usepackage{lstautogobble}
 \usepackage{enumitem}
 
 \usepackage[italian]{babel}
 \usepackage[italian]{cleveref}
-
-% Configurazione listing
-\lstset{
-    language=Python,
-    basicstyle=\ttfamily\small,
-    breaklines=true,
-    frame=single,
-    showstringspaces=false,
-    autogobble=true,
-    numbers=left,
-    numberstyle=\tiny,
-    numbersep=5pt
-}
 
 \title{Elaborato per il corso \\ \textit{Programmazione di Reti}}
 \author{Grazia Bochdanovits de Kavna}
@@ -38,7 +23,7 @@
 
 \chapter{Introduzione}
 
-Il presente progetto ha l'obiettivo di realizzare un \textbf{web server HTTP} in \textbf{Python}, realizzato utilizzando socket per gestire le connessioni di rete. 
+Il presente progetto ha l'obiettivo di realizzare un \textbf{web server HTTP} in \textbf{Python}, utilizzando socket per gestire le connessioni di rete. 
 Il server è progettato per rispondere sulla \textbf{porta 8080} di \texttt{localhost} e servire contenuti statici dalla directory \texttt{www/}.
 
 Il lavoro implementa tutti i requisiti minimi richiesti dalla traccia: gestione delle richieste \texttt{GET} con risposta 200, servizio di almeno tre pagine HTML statiche, e corretta gestione degli errori 404 per file inesistenti. 
@@ -79,147 +64,29 @@ La struttura del codice è organizzata nei seguenti componenti principali:
 Il processo di gestione delle richieste segue un flusso ben definito:
 
 \subsection{Accettazione delle connessioni}
-Il server rimane in attesa su una socket configurata con opzioni di riutilizzo dell'indirizzo. Quando una connessione viene accettata, viene creato un nuovo thread che gestirà il client fino al completamento della richiesta.
-
-\begin{lstlisting}
-def _run_server_loop(self):
-    self.running = True
-    while self.running:
-        try:
-            client_socket, client_address = self.socket.accept()
-            thread = threading.Thread(
-                target=self._handle_client, 
-                args=(client_socket, client_address),
-                daemon=True
-            )
-            thread.start()
-        except socket.timeout:
-            continue
-        except KeyboardInterrupt:
-            self.logger.info("Shutting down...")
-            break
-        except Exception as e:
-            if self.running:
-                self.logger.error(f"Accept error: {e}")
-            break
-\end{lstlisting}
+Il ciclo principale del server, gestito dal metodo \texttt{\_run\_server\_loop} della classe \texttt{HTTPServer}, rimane in attesa su una socket configurata con l'opzione di riutilizzo dell'indirizzo (\texttt{SO\_REUSEADDR}). Utilizzando un timeout sulla socket, il ciclo può essere interrotto in modo pulito. Quando una nuova connessione viene accettata, per ogni client viene creato un nuovo thread dedicato (utilizzando il modulo \texttt{threading}) che invoca il metodo \texttt{\_handle\_client}, il quale si occuperà di gestire tutta la comunicazione con quel client specifico. La gestione delle eccezioni assicura che errori di accettazione o l'interruzione da terminale (tramite \texttt{KeyboardInterrupt}) vengano gestiti correttamente, portando a una chiusura ordinata del server.
 
 \subsection{Parsing della richiesta}
-La richiesta HTTP viene analizzata estraendo il metodo, il path e la versione del protocollo. Sono supportati esclusivamente richieste GET secondo lo standard HTTP/1.x.
-
-\begin{lstlisting}
-def _process_request(self, client_socket, request_data):
-    lines = request_data.split('\n')
-    if not lines or not lines[0].strip():
-        return self._send_error(client_socket, 400)
-        
-    parts = lines[0].strip().split()
-    if len(parts) != 3:
-        return self._send_error(client_socket, 400)
-        
-    method, path, version = parts
-    if method != 'GET':
-        return self._send_error(client_socket, 405)
-    if not version.startswith('HTTP/1.'):
-        return self._send_error(client_socket, 400)
-        
-    self._handle_get(client_socket, path)
-\end{lstlisting}
+Il metodo \texttt{\_process\_request} analizza la richiesta HTTP ricevuta, estraendo il metodo, il path e la versione del protocollo dalla prima linea della richiesta. Il parser verifica che la richiesta sia ben formata e contenga esattamente tre componenti. Sono supportate esclusivamente richieste \texttt{GET} secondo lo standard HTTP/1.x. Richieste con metodi diversi vengono rifiutate con un errore \texttt{405 Method Not Allowed}, mentre versioni del protocollo non supportate generano un errore \texttt{400 Bad Request}. Se il parsing ha successo, il controllo passa al metodo \texttt{\_handle\_get} per la gestione specifica della richiesta GET.
 
 \subsection{Resolving del percorso}
-Il path richiesto viene normalizzato e convertito in un percorso del filesystem locale, con controlli di sicurezza per prevenire directory traversal attacks.
-
-\begin{lstlisting}
-def _resolve_path(self, url_path):
-    try:
-        path = unquote(urlparse(url_path).path)
-        path = os.path.normpath(path)
-        
-        if path in ('/', '.'):
-            path = '/home.html'
-        if path.startswith('/'):
-            path = path[1:]
-            
-        full_path = os.path.join(self.www_dir, path)
-        
-        # Security check
-        if os.path.abspath(full_path).startswith(self.www_dir):
-            return full_path
-            
-    except Exception as e:
-        self.logger.warning(f"Path resolution error: {e}")
-    return None
-\end{lstlisting}
+Il metodo \texttt{\_resolve\_path} si occupa di garantire sicurezza durante la conversione degli URL in percorsi filesystem. Il percorso richiesto viene prima decodificato (\texttt{unquote}) e analizzato (\texttt{urlparse}) per estrarre il pathname, quindi normalizzato (\texttt{os.path.normpath}) per rimuovere riferimenti relativi ridondanti. Il path viene poi ancorato alla directory root dei contenuti statici (\texttt{www\_dir}). La misura di sicurezza fondamentale è il controllo che il percorso assoluto risultante inizi effettivamente con il percorso di \texttt{www\_dir}, prevenendo così attacchi di directory traversal che potrebbero tentare di accedere a file al di fuori della directory consentita. In caso di errore o di violazione di questo controllo, il metodo restituisce \texttt{None}, inducendo il server a rispondere con un errore \texttt{403 Forbidden}.
 
 \subsection{Servizio dei file}
-I file vengono serviti con il corretto Content-Type determinato automaticamente. Sono implementati controlli per:
+I file vengono serviti con il corretto Content-Type determinato automaticamente dal metodo \texttt{\_serve\_file}. Sono implementati diversi controlli di sicurezza e validazione:
 \begin{itemize}
-    \item Dimensioni massime dei file (10MB)
-    \item Tipi di file supportati (esclusi .php, .jsp, .asp)
-    \item Gestione automatica di index.html per le directory
-    \item Pagine di errore personalizzabili
+    \item \textbf{Dimensioni massime}: I file superiori a 10MB vengono rifiutati con errore \texttt{413 Request Entity Too Large}
+    \item \textbf{Tipi di file supportati}: File con estensioni dinamiche (\texttt{.php}, \texttt{.jsp}, \texttt{.asp}) vengono deliberatamente rifiutati con errore \texttt{501 Not Implemented}
+    \item \textbf{Gestione automatica delle directory}: Se il path richiesto corrisponde a una directory, viene automaticamente servito il file \texttt{index.html} in essa contenuto, se presente
+    \item \textbf{Rilevamento MIME type}: Il tipo MIME viene determinato automaticamente usando il modulo \texttt{mimetypes}, con fallback su \texttt{application/octet-stream}
 \end{itemize}
-
-\begin{lstlisting}
-def _serve_file(self, client_socket, file_path):
-    try:
-        # Size limit check
-        if os.path.getsize(file_path) > 10 * 1024 * 1024:
-            return self._send_error(client_socket, 413)
-            
-        with open(file_path, 'rb') as f:
-            content = f.read()
-            
-        mime_type = mimetypes.guess_type(file_path)[0] or 'application/octet-stream'
-        self._send_response(client_socket, 200, content, mime_type)
-        
-    except FileNotFoundError:
-        self._send_error(client_socket, 404)
-    except PermissionError:
-        self._send_error(client_socket, 403)
-    except Exception as e:
-        self.logger.error(f"File serve error: {e}")
-        self._send_error(client_socket, 500)
-\end{lstlisting}
+La gestione delle eccezioni assicura che errori comuni come file non trovati o permessi insufficienti vengano convertiti negli appropriati codici di stato HTTP (\texttt{404 Not Found} e \texttt{403 Forbidden} rispettivamente).
 
 \subsection{Gestione degli errori}
-Il server produce pagine di errore appropriate per i vari codici di stato HTTP. Sono supportate sia pagine personalizzate (es. 404.html) che pagine di default generate dinamicamente.
-
-\begin{lstlisting}
-def _get_error_content(self, status_code):
-    # Try custom error page first
-    error_file = os.path.join(self.www_dir, f"{status_code}.html")
-    if os.path.isfile(error_file):
-        try:
-            with open(error_file, 'r', encoding='utf-8') as f:
-                return f.read()
-        except Exception:
-            pass
-    
-    # Default error page
-    status_text = self.STATUS_CODES.get(status_code, "Error")
-    return f"""<!DOCTYPE html>
-        <html><head><title>{status_code} {status_text}</title></head>
-        <body style="font-family:Arial;text-align:center;margin-top:100px;">
-        <h1 style="color:#e74c3c;">{status_code}</h1>
-        <h2>{status_text}</h2>
-        <p>La risorsa richiesta non è disponibile.</p>
-        <a href="/" style="color:#3498db;">Torna alla homepage</a>
-        </body></html>"""
-\end{lstlisting}
+Il server produce pagine di errore appropriate per i vari codici di stato HTTP attraverso il metodo \texttt{\_get\_error\_content}. Il sistema cerca prima pagine di errore personalizzate nella directory \texttt{www} (con naming convention \texttt{[codice].html}). Se non trova una pagina personalizzata per quel specifico codice di errore, genera dinamicamente una pagina di default con un messaggio di errore chiaro e un link per tornare alla homepage. Questo approccio ibrido offre flessibilità nella personalizzazione mantenendo al contempo una risposta appropriata per tutti i possibili errori.
 
 \subsection{Logging}
-Tutte le attività del server vengono registrate sia su file che su console, includendo timestamp, indirizzi IP client e richieste effettuate.
-
-\begin{lstlisting}
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.FileHandler('server.log'), logging.StreamHandler()]
-)
-\end{lstlisting}
-
-Questa implementazione garantisce un server stabile, sicuro e conforme agli standard HTTP di base, adatto per servire contenuti statici in ambienti didattici e di testing.
+Tutte le attività del server vengono registrate attraverso il modulo \texttt{logging} di Python. Il sistema è configurato per scrivere contemporaneamente su file (\texttt{server.log}) e su console, includendo per ogni entry un timestamp, il livello di gravità, e il messaggio descrittivo. Ogni richiesta viene loggata con l'indirizzo IP del client e la prima linea della richiesta HTTP, fornendo un audit trail completo delle attività del server mentre mantiene una dimensione gestibile dei log.
 
 \chapter{Sito web statico}
 
@@ -228,7 +95,7 @@ Il sito web è composto da cinque pagine HTML statiche, tutte stilizzate mediant
 \section{Pagine HTML}
 
 \begin{itemize}
-    \item \textbf{home.html}: Homepage del sito con navigazione principale
+    \item \textbf{index.html}: Homepage del sito con navigazione principale
     \item \textbf{login.html}: Pagina di autenticazione con form per le credenziali
     \item \textbf{contact.html}: Pagina di contatto con informazioni e form
     \item \textbf{404.html}: Pagina di errore personalizzata per risorse non trovate
@@ -276,7 +143,7 @@ Il progetto, pur essendo completo e funzionale, può essere esteso con diverse f
 \subsection{Note sull'accesso}
 
 \begin{itemize}
-    \item La root \texttt{/} restituisce automaticamente \texttt{home.html}.
+    \item La root \texttt{/} restituisce automaticamente \texttt{index.html}.
     \item File non esistenti mostrano la pagina \texttt{404.html}.
     \item Il form di login reindirizza a \texttt{501.html}.
 \end{itemize}
