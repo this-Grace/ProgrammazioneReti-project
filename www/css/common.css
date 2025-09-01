@@ -1,9 +1,7 @@
-/* Variabili e reset essenziali */
 :root {
     --primary-color: #6a11cb;
     --secondary-color: #2575fc;
     --text-color: #ffffff;
-    --card-bg: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -25,11 +23,9 @@ body {
 
 .container {
     text-align: center;
-    background: var(--card-bg);
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
     padding: 2rem;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
     max-width: 600px;
     width: 90%;
 }
@@ -62,7 +58,6 @@ p {
     text-decoration: none;
     border-radius: 50px;
     border: 2px solid rgba(255, 255, 255, 0.3);
-    cursor: pointer;
     transition: all 0.2s ease;
 }
 
@@ -71,10 +66,6 @@ p {
 }
 
 /* Form */
-form {
-    margin-top: 1.5rem;
-}
-
 .input-group {
     margin-bottom: 1.2rem;
     text-align: left;
@@ -99,24 +90,4 @@ input {
     font-size: 4rem;
     font-weight: bold;
     margin-bottom: 0.5rem;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-    .container {
-        padding: 1.5rem;
-    }
-    
-    h1 {
-        font-size: 1.8rem;
-    }
-    
-    .links {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .links a, button {
-        margin: 0.3rem 0;
-    }
 }
